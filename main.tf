@@ -1,27 +1,32 @@
-data "aws_ami" "app_ami" {
-  most_recent = true
-  owners      = ["137112412989"]
+# 1. The Bucket
+resource "aws_s3_bucket" "my_bucket" {
+  bucket = "testbucket11134512545"
+}
 
-filter {
-    name   = "name"
-    # This wildcard matches any AL2023 x86_64 image
-    values = ["al2023-ami-2023.*-x86_64*"] 
+# 2. Enforce Private Access (Block Public Access)
+resource "aws_s3_bucket_public_access_block" "my_bucket_access" {
+  bucket = aws_s3_bucket.my_bucket.id
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
+# 3. Enable Versioning
+resource "aws_s3_bucket_versioning" "my_bucket_versioning" {
+  bucket = aws_s3_bucket.my_bucket.id
+  versioning_configuration {
+    status = "Enabled"
   }
 }
 
-resource "aws_instance" "web" {
-  ami           = data.aws_ami.app_ami.id # This now points to the Amazon Linux image
-  instance_type = "t3.micro"
-
-  # Automate the installation of Tomcat
-  user_data = <<-EOF
-              #!/bin/bash
-              dnf update -y
-              dnf install -y tomcat
-              systemctl enable --now tomcat
-              EOF
-
-  tags = {
-    Name = "HelloWorld"
+# 4. Enforce Server-Side Encryption
+resource "aws_s3_bucket_server_side_encryption_configuration" "my_bucket_crypto" {
+  bucket = aws_s3_bucket.my_bucket.id
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
+    }
   }
 }
