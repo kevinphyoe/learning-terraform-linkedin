@@ -1,16 +1,22 @@
 data "aws_ami" "app_ami" {
   most_recent = true
-  owners      = ["amazon"]
+  owners      = ["137112412989"]
+
+filter {
+    name   = "name"
+    # This wildcard matches any AL2023 x86_64 image
+    values = ["al2023-ami-2023.*-x86_64*"] 
+  }
 
   filter {
-    name   = "name"
-    values = ["al2023-ami-2023.*-x86_64"]
+    name   = "virtualization-type"
+    values = ["hvm"]
   }
 }
 
 resource "aws_instance" "web" {
   ami           = data.aws_ami.app_ami.id # This now points to the Amazon Linux image
-  instance_type = "t3.nano"
+  instance_type = "t3.micro"
 
   # Automate the installation of Tomcat
   user_data = <<-EOF
