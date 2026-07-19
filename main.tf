@@ -1,5 +1,4 @@
-# 1. Lookup a current Amazon Linux 2023 AMI
-data "aws_ami" "amazon_linux" {
+data "aws_ami" "app_ami" {
   most_recent = true
   owners      = ["amazon"]
 
@@ -10,9 +9,10 @@ data "aws_ami" "amazon_linux" {
 }
 
 resource "aws_instance" "web" {
-  ami           = data.aws_ami.amazon_linux.id
+  ami           = data.aws_ami.app_ami.id # This now points to the Amazon Linux image
   instance_type = "t3.nano"
 
+  # Automate the installation of Tomcat
   user_data = <<-EOF
               #!/bin/bash
               dnf update -y
