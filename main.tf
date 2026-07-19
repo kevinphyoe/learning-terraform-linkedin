@@ -7,11 +7,6 @@ filter {
     # This wildcard matches any AL2023 x86_64 image
     values = ["al2023-ami-2023.*-x86_64*"] 
   }
-
-  filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
-  }
 }
 
 resource "aws_instance" "web" {
